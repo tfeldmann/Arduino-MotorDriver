@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-inline int8_t sign(int x)
+inline int8_t _sign(int x)
 {
     if (x == 0)
         return 0;
@@ -10,10 +10,18 @@ inline int8_t sign(int x)
     return -1;
 }
 
+inline long _mapLimit(long x, long in_min, long in_max, long out_min, long out_max)
+{
+    long lower_limit = min(out_min, out_max);
+    long upper_limit = max(out_min, out_max);
+    long value = map(x, in_min, in_max, out_min, out_max);
+    return constrain(value, lower_limit, upper_limit);
+}
+
 class MotorDriver
 {
 public:
-    Motor()
+    MotorDriver()
     {
         speed_ = 0;
     }
@@ -31,7 +39,7 @@ public:
 
     void update()
     {
-        int dir = sign(speed_);
+        int dir = _sign(speed_);
         int pwm = abs(speed_);
         apply_electric(dir, pwm);
     };
@@ -47,7 +55,7 @@ class DirPwmMotor : public MotorDriver
 public:
     DirPwmMotor(int pin_dir, int pin_pwm)
     {
-        pin_dir_ = pin_dir_fwd;
+        pin_dir_ = pin_dir;
         pin_pwm_ = pin_pwm;
         pinMode(pin_dir_, OUTPUT);
         pinMode(pin_pwm_, OUTPUT);
@@ -113,7 +121,7 @@ public:
 
     void apply_electric(int dir, int pwm) override
     {
-        pwm = mapLimit(pwm, 0, 255, 0, limit_);
+        pwm = _mapLimit(pwm, 0, 255, 0, limit_);
         switch (dir)
         {
         case 1:
