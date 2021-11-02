@@ -12,4 +12,6 @@ This library gives you an unified way to control the following interfaces:
 | `HBridgeMotor`             | `H1`, `L1`, `H2`, `L2`      | A H-bridge motor controller                        |
 | `HBridgeSoftDeadtimeMotor` | `H1`, `L1`, `H2`, `L2`      | A H-bridge motor controller with software deadtime |
 
+This allows you to change the motor driver chip / circuitry with minimal changes to your code.
+
 Use at your own risk.
