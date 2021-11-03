@@ -63,7 +63,7 @@ public:
     {
         pin_dir_ = pin_dir;
         pin_pwm_ = pin_pwm;
-        reverse_ = reverse;
+        reverse_direction_ = reverse_direction;
         pinMode(pin_dir_, OUTPUT);
         pinMode(pin_pwm_, OUTPUT);
         stop();
@@ -71,14 +71,14 @@ public:
 
     void applyElectric(int dir, int pwm) override
     {
-        digitalWrite(pin_dir_, (dir > 0) ^ reverse_);
+        digitalWrite(pin_dir_, (dir > 0) ^ reverse_direction_);
         analogWrite(pin_pwm_, pwm);
     };
 
 private:
     int pin_dir_;
     int pin_pwm_;
-    bool reverse_;
+    bool reverse_direction_;
 };
 
 class FwdBwdPwmMotor : public MotorDriver
