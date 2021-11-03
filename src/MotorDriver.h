@@ -21,39 +21,30 @@ inline long _mapLimit(long x, long in_min, long in_max, long out_min, long out_m
 class MotorDriver
 {
 public:
-    MotorDriver()
-    {
-        speed_ = 0;
-    }
-
-    int speed()
+    virtual int speed()
     {
         return speed_;
     }
 
-    void setSpeed(int speed)
+    virtual void setSpeed(int speed)
     {
         speed_ = constrain(speed, -255, 255);
-        update();
-    }
-
-    void stop()
-    {
-        setSpeed(0);
-    }
-
-    void update()
-    {
         // splits the speed into a pwm (0...255) and a direction (-1...1)
         int dir = _sign(speed_);
         int pwm = abs(speed_);
         applyElectric(dir, pwm);
-    };
+    }
 
+    virtual void stop()
+    {
+        setSpeed(0);
+    }
+
+    // implement this function in your driver
     virtual void applyElectric(int dir, int pwm) = 0;
 
 private:
-    int speed_;
+    int speed_ = 0;
 };
 
 class DirPwmMotor : public MotorDriver
