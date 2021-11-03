@@ -31,20 +31,26 @@ public:
         return speed_;
     }
 
-    void set_speed(int speed)
+    void setSpeed(int speed)
     {
         speed_ = constrain(speed, -255, 255);
         update();
     }
 
+    void stop()
+    {
+        setSpeed(0);
+    }
+
     void update()
     {
+        // splits the speed into a pwm (0...255) and a direction (-1...1)
         int dir = _sign(speed_);
         int pwm = abs(speed_);
-        apply_electric(dir, pwm);
+        applyElectric(dir, pwm);
     };
 
-    virtual void apply_electric(int dir, int pwm) = 0;
+    virtual void applyElectric(int dir, int pwm) = 0;
 
 private:
     int speed_;
@@ -53,24 +59,26 @@ private:
 class DirPwmMotor : public MotorDriver
 {
 public:
-    DirPwmMotor(int pin_dir, int pin_pwm)
+    DirPwmMotor(int pin_dir, int pin_pwm, bool reverse_direction = false)
     {
         pin_dir_ = pin_dir;
         pin_pwm_ = pin_pwm;
+        reverse_ = reverse;
         pinMode(pin_dir_, OUTPUT);
         pinMode(pin_pwm_, OUTPUT);
-        set_speed(0);
+        stop();
     }
 
-    void apply_electric(int dir, int pwm) override
+    void applyElectric(int dir, int pwm) override
     {
-        digitalWrite(pin_dir_, dir > 0);
+        digitalWrite(pin_dir_, (dir > 0) ^ reverse_);
         analogWrite(pin_pwm_, pwm);
     };
 
 private:
     int pin_dir_;
     int pin_pwm_;
+    bool reverse_;
 };
 
 class FwdBwdPwmMotor : public MotorDriver
@@ -84,10 +92,10 @@ public:
         pinMode(pin_dir_fwd_, OUTPUT);
         pinMode(pin_dir_bwd_, OUTPUT);
         pinMode(pin_pwm_, OUTPUT);
-        set_speed(0);
+        stop();
     }
 
-    void apply_electric(int dir, int pwm) override
+    void applyElectric(int dir, int pwm) override
     {
         digitalWrite(pin_dir_fwd_, dir > 0);
         digitalWrite(pin_dir_bwd_, dir < 0);
@@ -114,12 +122,12 @@ public:
         pinMode(pin_high2_, OUTPUT);
         pinMode(pin_low1_, OUTPUT);
         pinMode(pin_low2_, OUTPUT);
-        set_speed(0);
+        stop();
 
         limit_ = limit;
     }
 
-    void apply_electric(int dir, int pwm) override
+    void applyElectric(int dir, int pwm) override
     {
         pwm = _mapLimit(pwm, 0, 255, 0, limit_);
         switch (dir)
@@ -171,11 +179,11 @@ public:
         pinMode(pin_m0_disc_gnd, OUTPUT);
         pinMode(pin_m1_conn_vcc, OUTPUT);
         pinMode(pin_m1_disc_gnd, OUTPUT);
-        set_speed(0);
+        stop();
         prev_dir_ = 0;
     }
 
-    void apply_electric(int dir, int pwm) override
+    void applyElectric(int dir, int pwm) override
     {
         // make electrical changes to change direction or brake
         bool dir_changed = (dir != prev_dir_);

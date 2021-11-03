@@ -2,7 +2,7 @@
 
 There are many different ways to drive a DC motor.
 
-This library gives you an unified way to control the following interfaces:
+This library gives you an unified interface to control the following setups:
 
 | Classname                  | Pins                        | Comment                                            |
 | -------------------------- | --------------------------- | -------------------------------------------------- |
