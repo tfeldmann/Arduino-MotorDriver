@@ -1,5 +1,7 @@
 # Arduino MotorDriver Library
 
+[![tests](https://github.com/tfeldmann/Arduino-MotorDriver/actions/workflows/tests.yaml/badge.svg)](https://github.com/tfeldmann/Arduino-MotorDriver/actions/workflows/tests.yaml)
+
 There are many different ways to drive a DC motor.
 
 This library gives you an unified interface to control the following setups:
