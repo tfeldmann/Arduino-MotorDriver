@@ -16,4 +16,7 @@ void loop()
 
     motor.setSpeed(-150);
     delay(1000);
+
+    motor.stop();
+    delay(1000);
 }
