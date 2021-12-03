@@ -32,16 +32,17 @@ public:
         // splits the speed into a pwm (0...255) and a direction (-1...1)
         int dir = _sign(speed_);
         int pwm = abs(speed_);
-        applyElectric(dir, pwm);
+        write(dir, pwm, false);
     }
 
-    virtual void stop()
+    virtual void stop(bool brake = false)
     {
-        setSpeed(0);
+        speed_ = 0;
+        write(0, 0, brake);
     }
 
     // implement this function in your driver
-    virtual void applyElectric(int dir, int pwm) = 0;
+    virtual void write(int dir, int pwm, bool brake) = 0;
 
 private:
     int speed_ = 0;
@@ -60,7 +61,7 @@ public:
         stop();
     }
 
-    void applyElectric(int dir, int pwm) override
+    void write(int dir, int pwm, bool brake) override
     {
         digitalWrite(pin_dir_, (dir > 0) ^ reverse_direction_);
         analogWrite(pin_pwm_, pwm);
@@ -86,7 +87,7 @@ public:
         stop();
     }
 
-    void applyElectric(int dir, int pwm) override
+    void write(int dir, int pwm, bool brake) override
     {
         digitalWrite(pin_dir_fwd_, dir > 0);
         digitalWrite(pin_dir_bwd_, dir < 0);
@@ -118,7 +119,7 @@ public:
         limit_ = limit;
     }
 
-    void applyElectric(int dir, int pwm) override
+    void write(int dir, int pwm, bool brake) override
     {
         pwm = _mapLimit(pwm, 0, 255, 0, limit_);
         switch (dir)
@@ -174,7 +175,7 @@ public:
         prev_dir_ = 0;
     }
 
-    void applyElectric(int dir, int pwm) override
+    void write(int dir, int pwm, bool brake) override
     {
         // make electrical changes to change direction or brake
         bool dir_changed = (dir != prev_dir_);
