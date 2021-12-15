@@ -10,14 +10,6 @@ inline int8_t _sign(int x)
     return -1;
 }
 
-inline long _mapLimit(long x, long in_min, long in_max, long out_min, long out_max)
-{
-    long lower_limit = min(out_min, out_max);
-    long upper_limit = max(out_min, out_max);
-    long value = map(x, in_min, in_max, out_min, out_max);
-    return constrain(value, lower_limit, upper_limit);
-}
-
 class MotorDriver
 {
 public:
@@ -28,7 +20,7 @@ public:
 
     virtual void setSpeed(int speed)
     {
-        speed_ = constrain(speed, -255, 255);
+        speed_ = speed;
         // splits the speed into a pwm (0...255) and a direction (-1...1)
         int dir = _sign(speed_);
         int pwm = abs(speed_);
@@ -42,16 +34,47 @@ public:
     }
 
     // implement this function in your driver
-    virtual void write(int dir, int pwm, bool brake) = 0;
+    virtual void write(int dir, int pwm, bool brake = false) = 0;
 
 private:
     int speed_ = 0;
 };
 
+class PwmMotor : public MotorDriver
+{
+public:
+    PwmMotor();
+    PwmMotor(int pin_pwm)
+    {
+        begin(pin_pwm);
+    }
+
+    void begin(int pin_pwm)
+    {
+        pin_pwm_ = pin_pwm;
+        pinMode(pin_pwm_, OUTPUT);
+        stop();
+    }
+
+    void write(int dir, int pwm, bool brake) override
+    {
+        analogWrite(pin_pwm_, pwm > 0 ? pwm : 0);
+    };
+
+private:
+    int pin_pwm_;
+};
+
 class DirPwmMotor : public MotorDriver
 {
 public:
+    DirPwmMotor();
     DirPwmMotor(int pin_dir, int pin_pwm, bool reverse_direction = false)
+    {
+        begin(pin_dir, pin_pwm, reverse_direction);
+    }
+
+    void begin(int pin_dir, int pin_pwm, bool reverse_direction = false)
     {
         pin_dir_ = pin_dir;
         pin_pwm_ = pin_pwm;
@@ -76,7 +99,13 @@ private:
 class FwdBwdPwmMotor : public MotorDriver
 {
 public:
+    FwdBwdPwmMotor();
     FwdBwdPwmMotor(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm)
+    {
+        begin(pin_dir_fwd, pin_dir_bwd, pin_pwm);
+    }
+
+    void begin(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm)
     {
         pin_dir_fwd_ = pin_dir_fwd;
         pin_dir_bwd_ = pin_dir_bwd;
@@ -100,20 +129,27 @@ private:
     int pin_pwm_;
 };
 
-class HBridgeMotor : public MotorDriver
+class HBridgeHighLowMotor : public MotorDriver
 {
 public:
-    HBridgeMotor(
-        int pin_high1, int pin_low1, int pin_high2, int pin_low2, int limit = 255)
+    HBridgeHighLowMotor();
+    HBridgeHighLowMotor(
+        int pin_a_high, int pin_a_low, int pin_b_high, int pin_b_low, int limit = 255)
     {
-        pin_high1_ = pin_high1;
-        pin_high2_ = pin_high2;
-        pin_low1_ = pin_low1;
-        pin_low2_ = pin_low2;
-        pinMode(pin_high1_, OUTPUT);
-        pinMode(pin_high2_, OUTPUT);
-        pinMode(pin_low1_, OUTPUT);
-        pinMode(pin_low2_, OUTPUT);
+        begin(pin_a_high, pin_a_low, pin_b_high, pin_b_low, limit);
+    }
+
+    void begin(
+        int pin_a_high, int pin_a_low, int pin_b_high, int pin_b_low, int limit = 255)
+    {
+        pin_a_high_ = pin_a_high;
+        pin_b_high_ = pin_b_high;
+        pin_a_low_ = pin_a_low;
+        pin_b_low_ = pin_b_low;
+        pinMode(pin_a_high_, OUTPUT);
+        pinMode(pin_b_high_, OUTPUT);
+        pinMode(pin_a_low_, OUTPUT);
+        pinMode(pin_b_low_, OUTPUT);
         stop();
 
         limit_ = limit;
@@ -121,35 +157,96 @@ public:
 
     void write(int dir, int pwm, bool brake) override
     {
-        pwm = _mapLimit(pwm, 0, 255, 0, limit_);
+        pwm = constrain(pwm, 0, limit_);
         switch (dir)
         {
         case 1:
-            analogWrite(pin_high1_, 0);
-            analogWrite(pin_low1_, pwm);
-            analogWrite(pin_high2_, pwm);
-            analogWrite(pin_low2_, 0);
+            analogWrite(pin_a_high_, 0);
+            analogWrite(pin_a_low_, pwm);
+            analogWrite(pin_b_high_, pwm);
+            analogWrite(pin_b_low_, 0);
             break;
         case 0:
-            analogWrite(pin_high1_, pwm);
-            analogWrite(pin_low1_, 0);
-            analogWrite(pin_high2_, pwm);
-            analogWrite(pin_low2_, 0);
+            analogWrite(pin_a_high_, pwm);
+            analogWrite(pin_a_low_, 0);
+            analogWrite(pin_b_high_, pwm);
+            analogWrite(pin_b_low_, 0);
             break;
         case -1:
-            analogWrite(pin_high1_, pwm);
-            analogWrite(pin_low1_, 0);
-            analogWrite(pin_high2_, 0);
-            analogWrite(pin_low2_, pwm);
+            analogWrite(pin_a_high_, pwm);
+            analogWrite(pin_a_low_, 0);
+            analogWrite(pin_b_high_, 0);
+            analogWrite(pin_b_low_, pwm);
             break;
         };
     }
 
 private:
-    int pin_high1_;
-    int pin_low1_;
-    int pin_high2_;
-    int pin_low2_;
+    int pin_a_high_;
+    int pin_a_low_;
+    int pin_b_high_;
+    int pin_b_low_;
+
+    int limit_;
+};
+
+class HBridgeSelectPwmMotor : public MotorDriver
+{
+public:
+    HBridgeSelectPwmMotor();
+    HBridgeSelectPwmMotor(
+        int pin_a_sel, int pin_a_pwm, int pin_b_sel, int pin_b_pwm, int limit = 255)
+    {
+        begin(pin_a_sel, pin_a_pwm, pin_b_sel, pin_b_pwm, limit);
+    }
+
+    void begin(
+        int pin_a_sel, int pin_a_pwm, int pin_b_sel, int pin_b_pwm, int limit = 255)
+    {
+        pin_a_sel_ = pin_a_sel;
+        pin_b_sel_ = pin_b_sel;
+        pin_a_pwm_ = pin_a_pwm;
+        pin_b_pwm_ = pin_b_pwm;
+        pinMode(pin_a_sel_, OUTPUT);
+        pinMode(pin_a_pwm_, OUTPUT);
+        pinMode(pin_b_sel_, OUTPUT);
+        pinMode(pin_b_pwm_, OUTPUT);
+        stop();
+
+        limit_ = limit;
+    }
+
+    void write(int dir, int pwm, bool brake) override
+    {
+        pwm = constrain(pwm, 0, limit_);
+        switch (dir)
+        {
+        case 1:
+            digitalWrite(pin_a_sel_, HIGH);
+            digitalWrite(pin_b_sel_, LOW);
+            analogWrite(pin_a_pwm_, pwm);
+            analogWrite(pin_b_pwm_, pwm);
+            break;
+        case 0:
+            digitalWrite(pin_a_sel_, LOW);
+            digitalWrite(pin_b_sel_, LOW);
+            analogWrite(pin_a_pwm_, 0);
+            analogWrite(pin_b_pwm_, 0);
+            break;
+        case -1:
+            digitalWrite(pin_a_sel_, LOW);
+            digitalWrite(pin_b_sel_, HIGH);
+            analogWrite(pin_a_pwm_, pwm);
+            analogWrite(pin_b_pwm_, pwm);
+            break;
+        };
+    }
+
+private:
+    int pin_a_sel_;
+    int pin_a_pwm_;
+    int pin_b_sel_;
+    int pin_b_pwm_;
 
     int limit_;
 };
