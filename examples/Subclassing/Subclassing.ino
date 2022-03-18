@@ -4,8 +4,7 @@
  **/
 #include <MotorDriver.h>
 
-class SerialMotor : public MotorDriver
-{
+class SerialMotor : public MotorDriver {
 public:
     SerialMotor(int baudrate)
     {
@@ -14,9 +13,7 @@ public:
     void write(int dir, int pwm, bool brake) override
     {
         Serial.println(
-            "Dir: " + String(dir) +
-            ", PWM: " + String(pwm) +
-            ", Brake: " + String(brake));
+            "Dir: " + String(dir) + ", PWM: " + String(pwm) + ", Brake: " + String(brake));
     }
 };
 

@@ -10,9 +10,13 @@ inline int8_t _sign(int x)
     return -1;
 }
 
-class MotorDriver
-{
+class MotorDriver {
 public:
+    MotorDriver(bool reversed = false)
+        : reversed_(reversed)
+    {
+    }
+
     virtual int speed()
     {
         return speed_;
@@ -24,7 +28,17 @@ public:
         // splits the speed into a pwm (0...255) and a direction (-1...1)
         int dir = _sign(speed_);
         int pwm = abs(speed_);
-        write(dir, pwm, false);
+        write(reversed_ ? -dir : dir, pwm, false);
+    }
+
+    virtual bool reversed()
+    {
+        return reversed_;
+    }
+
+    virtual void setReversed(bool reversed)
+    {
+        reversed_ = reversed;
     }
 
     virtual void stop(bool brake = false)
@@ -38,21 +52,22 @@ public:
 
 private:
     int speed_ = 0;
+    bool reversed_ = false;
 };
 
-class PwmMotor : public MotorDriver
-{
+class PwmMotor : public MotorDriver {
 public:
     PwmMotor();
-    PwmMotor(int pin_pwm)
+    PwmMotor(int pin_pwm, bool reversed = false)
     {
-        begin(pin_pwm);
+        begin(pin_pwm, reversed);
     }
 
-    void begin(int pin_pwm)
+    void begin(int pin_pwm, bool reversed = false)
     {
         pin_pwm_ = pin_pwm;
         pinMode(pin_pwm_, OUTPUT);
+        setReversed(reversed);
         stop();
     }
 
@@ -65,47 +80,52 @@ private:
     int pin_pwm_;
 };
 
-class DirPwmMotor : public MotorDriver
-{
+class DirPwmMotor : public MotorDriver {
 public:
     DirPwmMotor();
-    DirPwmMotor(int pin_dir, int pin_pwm, bool reverse_direction = false)
+    DirPwmMotor(int pin_dir, int pin_pwm, bool reversed = false)
     {
-        begin(pin_dir, pin_pwm, reverse_direction);
+        begin(pin_dir, pin_pwm, reversed);
     }
 
-    void begin(int pin_dir, int pin_pwm, bool reverse_direction = false)
+    void begin(int pin_dir, int pin_pwm, bool reversed = false)
     {
         pin_dir_ = pin_dir;
         pin_pwm_ = pin_pwm;
-        reverse_direction_ = reverse_direction;
         pinMode(pin_dir_, OUTPUT);
         pinMode(pin_pwm_, OUTPUT);
+        setReversed(reversed);
         stop();
     }
 
     void write(int dir, int pwm, bool brake) override
     {
-        digitalWrite(pin_dir_, (dir > 0) ^ reverse_direction_);
+        digitalWrite(pin_dir_, dir > 0);
         analogWrite(pin_pwm_, pwm);
     };
 
 private:
     int pin_dir_;
     int pin_pwm_;
-    bool reverse_direction_;
 };
 
-class FwdBwdPwmMotor : public MotorDriver
-{
+class FwdBwdPwmMotor : public MotorDriver {
 public:
     FwdBwdPwmMotor();
-    FwdBwdPwmMotor(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm)
+    FwdBwdPwmMotor(
+        int pin_dir_fwd,
+        int pin_dir_bwd,
+        int pin_pwm,
+        bool reversed = false)
     {
-        begin(pin_dir_fwd, pin_dir_bwd, pin_pwm);
+        begin(pin_dir_fwd, pin_dir_bwd, pin_pwm, reversed);
     }
 
-    void begin(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm)
+    void begin(
+        int pin_dir_fwd,
+        int pin_dir_bwd,
+        int pin_pwm,
+        bool reversed = false)
     {
         pin_dir_fwd_ = pin_dir_fwd;
         pin_dir_bwd_ = pin_dir_bwd;
@@ -113,6 +133,7 @@ public:
         pinMode(pin_dir_fwd_, OUTPUT);
         pinMode(pin_dir_bwd_, OUTPUT);
         pinMode(pin_pwm_, OUTPUT);
+        setReversed(reversed);
         stop();
     }
 
@@ -129,18 +150,27 @@ private:
     int pin_pwm_;
 };
 
-class HBridgeHighLowMotor : public MotorDriver
-{
+class HBridgeHighLowMotor : public MotorDriver {
 public:
     HBridgeHighLowMotor();
     HBridgeHighLowMotor(
-        int pin_a_high, int pin_a_low, int pin_b_high, int pin_b_low, int limit = 255)
+        int pin_a_high,
+        int pin_a_low,
+        int pin_b_high,
+        int pin_b_low,
+        int limit = 255,
+        bool reversed = false)
     {
-        begin(pin_a_high, pin_a_low, pin_b_high, pin_b_low, limit);
+        begin(pin_a_high, pin_a_low, pin_b_high, pin_b_low, limit, reversed);
     }
 
     void begin(
-        int pin_a_high, int pin_a_low, int pin_b_high, int pin_b_low, int limit = 255)
+        int pin_a_high,
+        int pin_a_low,
+        int pin_b_high,
+        int pin_b_low,
+        int limit = 255,
+        bool reversed = false)
     {
         pin_a_high_ = pin_a_high;
         pin_b_high_ = pin_b_high;
@@ -150,6 +180,7 @@ public:
         pinMode(pin_b_high_, OUTPUT);
         pinMode(pin_a_low_, OUTPUT);
         pinMode(pin_b_low_, OUTPUT);
+        setReversed(reversed);
         stop();
 
         limit_ = limit;
@@ -158,8 +189,7 @@ public:
     void write(int dir, int pwm, bool brake) override
     {
         pwm = constrain(pwm, 0, limit_);
-        switch (dir)
-        {
+        switch (dir) {
         case 1:
             analogWrite(pin_a_high_, 0);
             analogWrite(pin_a_low_, pwm);
@@ -190,18 +220,27 @@ private:
     int limit_;
 };
 
-class HBridgeSelectPwmMotor : public MotorDriver
-{
+class HBridgeSelectPwmMotor : public MotorDriver {
 public:
     HBridgeSelectPwmMotor();
     HBridgeSelectPwmMotor(
-        int pin_a_sel, int pin_a_pwm, int pin_b_sel, int pin_b_pwm, int limit = 255)
+        int pin_a_sel,
+        int pin_a_pwm,
+        int pin_b_sel,
+        int pin_b_pwm,
+        int limit = 255,
+        bool reversed = false)
     {
-        begin(pin_a_sel, pin_a_pwm, pin_b_sel, pin_b_pwm, limit);
+        begin(pin_a_sel, pin_a_pwm, pin_b_sel, pin_b_pwm, limit, reversed);
     }
 
     void begin(
-        int pin_a_sel, int pin_a_pwm, int pin_b_sel, int pin_b_pwm, int limit = 255)
+        int pin_a_sel,
+        int pin_a_pwm,
+        int pin_b_sel,
+        int pin_b_pwm,
+        int limit = 255,
+        bool reversed = false)
     {
         pin_a_sel_ = pin_a_sel;
         pin_b_sel_ = pin_b_sel;
@@ -211,6 +250,7 @@ public:
         pinMode(pin_a_pwm_, OUTPUT);
         pinMode(pin_b_sel_, OUTPUT);
         pinMode(pin_b_pwm_, OUTPUT);
+        setReversed(reversed);
         stop();
 
         limit_ = limit;
@@ -219,8 +259,7 @@ public:
     void write(int dir, int pwm, bool brake) override
     {
         pwm = constrain(pwm, 0, limit_);
-        switch (dir)
-        {
+        switch (dir) {
         case 1:
             digitalWrite(pin_a_sel_, HIGH);
             digitalWrite(pin_b_sel_, LOW);
@@ -251,14 +290,14 @@ private:
     int limit_;
 };
 
-class HBridgeSoftDeadtimeMotor : public MotorDriver
-{
+class HBridgeSoftDeadtimeMotor : public MotorDriver {
 public:
     HBridgeSoftDeadtimeMotor(
         int pin_m0_conn_vcc,
         int pin_m0_disc_gnd,
         int pin_m1_conn_vcc,
-        int pin_m1_disc_gnd)
+        int pin_m1_disc_gnd,
+        bool reversed = false)
     {
         pin_m0_conn_vcc_ = pin_m0_conn_vcc;
         pin_m0_disc_gnd_ = pin_m0_disc_gnd;
@@ -268,6 +307,7 @@ public:
         pinMode(pin_m0_disc_gnd, OUTPUT);
         pinMode(pin_m1_conn_vcc, OUTPUT);
         pinMode(pin_m1_disc_gnd, OUTPUT);
+        setReversed(reversed);
         stop();
         prev_dir_ = 0;
     }
@@ -276,10 +316,8 @@ public:
     {
         // make electrical changes to change direction or brake
         bool dir_changed = (dir != prev_dir_);
-        if (dir_changed)
-        {
-            switch (dir)
-            {
+        if (dir_changed) {
+            switch (dir) {
             case 1: // FORWARD
                 analogWrite(pin_m1_disc_gnd_, 255);
                 delay(1);
