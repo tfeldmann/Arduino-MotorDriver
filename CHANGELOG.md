@@ -1,5 +1,9 @@
 # Changelog
 
+## WIP
+
+- Add `reversed` parameter.
+
 ## 3.0.0 (2021-12-15)
 
 - Rename `HBridgeMotor` -> `HBridgeHighLowMotor`
