@@ -1,6 +1,6 @@
 #include "MotorDriver.h"
 
-int8_t _sign(int x)
+int8_t sign(int x)
 {
     if (x == 0)
         return 0;
@@ -26,7 +26,7 @@ void MotorDriver::setSpeed(int speed)
 {
     speed_ = speed;
     // splits the speed into a pwm (0...255) and a direction (-1...1)
-    int dir = _sign(speed_);
+    int dir = sign(speed_);
     int pwm = abs(speed_);
     write(reversed_ ? -dir : dir, pwm, false);
 }

@@ -44,8 +44,8 @@ private:
 class FwdBwdPwmMotor : public MotorDriver {
 public:
     FwdBwdPwmMotor();
-    FwdBwdPwmMotor(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm, bool reversed);
-    void begin(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm, bool reversed);
+    FwdBwdPwmMotor(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm, bool reversed = false);
+    void begin(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm, bool reversed = false);
     void write(int dir, int pwm, bool brake) override;
 
 private:
@@ -70,7 +70,7 @@ public:
         int pin_b_high,
         int pin_b_low,
         int limit,
-        bool reversed);
+        bool reversed = false);
     void write(int dir, int pwm, bool brake) override;
 
 private:
