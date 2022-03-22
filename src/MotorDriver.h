@@ -1,51 +1,14 @@
 #pragma once
 #include <Arduino.h>
 
-inline int8_t _sign(int x)
-{
-    if (x == 0)
-        return 0;
-    else if (x > 0)
-        return 1;
-    return -1;
-}
-
 class MotorDriver {
 public:
-    MotorDriver(bool reversed = false)
-        : reversed_(reversed)
-    {
-    }
-
-    virtual int speed()
-    {
-        return speed_;
-    }
-
-    virtual void setSpeed(int speed)
-    {
-        speed_ = speed;
-        // splits the speed into a pwm (0...255) and a direction (-1...1)
-        int dir = _sign(speed_);
-        int pwm = abs(speed_);
-        write(reversed_ ? -dir : dir, pwm, false);
-    }
-
-    virtual bool reversed()
-    {
-        return reversed_;
-    }
-
-    virtual void setReversed(bool reversed)
-    {
-        reversed_ = reversed;
-    }
-
-    virtual void stop(bool brake = false)
-    {
-        speed_ = 0;
-        write(0, 0, brake);
-    }
+    MotorDriver(bool reversed = false);
+    virtual int speed();
+    virtual void setSpeed(int speed);
+    virtual bool reversed();
+    virtual void setReversed(bool reversed);
+    virtual void stop(bool brake = false);
 
     // implement this function in your driver
     virtual void write(int dir, int pwm, bool brake = false) = 0;
@@ -58,23 +21,9 @@ private:
 class PwmMotor : public MotorDriver {
 public:
     PwmMotor();
-    PwmMotor(int pin_pwm, bool reversed = false)
-    {
-        begin(pin_pwm, reversed);
-    }
-
-    void begin(int pin_pwm, bool reversed = false)
-    {
-        pin_pwm_ = pin_pwm;
-        pinMode(pin_pwm_, OUTPUT);
-        setReversed(reversed);
-        stop();
-    }
-
-    void write(int dir, int pwm, bool brake) override
-    {
-        analogWrite(pin_pwm_, pwm > 0 ? pwm : 0);
-    };
+    PwmMotor(int pin_pwm, bool reversed = false);
+    void begin(int pin_pwm, bool reversed = false);
+    void write(int dir, int pwm, bool brake) override;
 
 private:
     int pin_pwm_;
@@ -83,26 +32,9 @@ private:
 class DirPwmMotor : public MotorDriver {
 public:
     DirPwmMotor();
-    DirPwmMotor(int pin_dir, int pin_pwm, bool reversed = false)
-    {
-        begin(pin_dir, pin_pwm, reversed);
-    }
-
-    void begin(int pin_dir, int pin_pwm, bool reversed = false)
-    {
-        pin_dir_ = pin_dir;
-        pin_pwm_ = pin_pwm;
-        pinMode(pin_dir_, OUTPUT);
-        pinMode(pin_pwm_, OUTPUT);
-        setReversed(reversed);
-        stop();
-    }
-
-    void write(int dir, int pwm, bool brake) override
-    {
-        digitalWrite(pin_dir_, dir > 0);
-        analogWrite(pin_pwm_, pwm);
-    };
+    DirPwmMotor(int pin_dir, int pin_pwm, bool reversed = false);
+    void begin(int pin_dir, int pin_pwm, bool reversed = false);
+    void write(int dir, int pwm, bool brake) override;
 
 private:
     int pin_dir_;
