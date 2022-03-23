@@ -1,8 +1,9 @@
 # Changelog
 
-## WIP
+## 3.1.0 (2022-03-23)
 
 - Add `reversed` parameter.
+- Code cleanups.
 
 ## 3.0.0 (2021-12-15)
 
