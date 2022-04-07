@@ -1,6 +1,10 @@
 #pragma once
 #include <Arduino.h>
 
+/**
+ * The MotorDriver base class.
+ * Subclass this for your own motor drivers.
+ */
 class MotorDriver {
 public:
     MotorDriver(bool reversed = false);
@@ -18,6 +22,9 @@ private:
     bool reversed_ = false;
 };
 
+/**
+ * A motor controlled with a single PWM signal
+ */
 class PwmMotor : public MotorDriver {
 public:
     PwmMotor();
@@ -29,6 +36,9 @@ private:
     int pin_pwm_;
 };
 
+/**
+ * A motor controlled with a direction (H/L) and PWM signal.
+ */
 class DirPwmMotor : public MotorDriver {
 public:
     DirPwmMotor();
@@ -41,6 +51,9 @@ private:
     int pin_pwm_;
 };
 
+/**
+ * A motor controlled via two separate PWM signals for forward and backward
+ */
 class FwdBwdPwmMotor : public MotorDriver {
 public:
     FwdBwdPwmMotor();
@@ -54,6 +67,9 @@ private:
     int pin_pwm_;
 };
 
+/**
+ * A motor controlled via a H-bridge, setting the individual current paths
+ */
 class HBridgeHighLowMotor : public MotorDriver {
 public:
     HBridgeHighLowMotor();
@@ -82,6 +98,9 @@ private:
     int limit_;
 };
 
+/**
+ * A motor controlled via an H-bridge with a "select + pwm" interface
+ */
 class HBridgeSelectPwmMotor : public MotorDriver {
 public:
     HBridgeSelectPwmMotor();
@@ -110,6 +129,9 @@ private:
     int limit_;
 };
 
+/**
+ * A motor controlled via an H-bridge with delays to prevent shorts
+ */
 class HBridgeSoftDeadtimeMotor : public MotorDriver {
 public:
     HBridgeSoftDeadtimeMotor(
