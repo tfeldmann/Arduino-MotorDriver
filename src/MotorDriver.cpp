@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include "MotorDriver.h"
 
 int8_t sign(int x)
