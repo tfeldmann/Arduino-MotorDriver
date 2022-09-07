@@ -1,0 +1,24 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install platformio
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U platformio
+
+      - name: Run the tests
+        run: platformio test
+
+      - name: Build the examples
+        run: ./build_examples.sh
+
+      - name: Publish to platformio
+        run: PLATFORMIO_AUTH_TOKEN=${PLATFORMIO_TOKEN} platformio pkg publish --no-interactive

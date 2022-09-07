@@ -1,6 +1,7 @@
 # Arduino MotorDriver Library
 
 [![tests](https://github.com/tfeldmann/Arduino-MotorDriver/actions/workflows/tests.yaml/badge.svg)](https://github.com/tfeldmann/Arduino-MotorDriver/actions/workflows/tests.yaml)
+[![PlatformIO Registry](https://badges.registry.platformio.org/packages/tfeldmann/library/MotorDriver.svg)](https://registry.platformio.org/libraries/tfeldmann/MotorDriver)
 
 There are many different ways to drive a DC motor.
 
