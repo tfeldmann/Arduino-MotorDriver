@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #include "MotorDriver.h"
 
 int8_t sign(int x)
@@ -53,6 +51,7 @@ void MotorDriver::stop(bool brake)
 // -------------------------------------------------------------------------------------
 
 PwmMotor::PwmMotor()
+    : MotorDriver()
 {
 }
 
@@ -78,10 +77,12 @@ void PwmMotor::write(int dir, int pwm, bool brake)
 // -------------------------------------------------------------------------------------
 
 DirPwmMotor::DirPwmMotor()
+    : MotorDriver()
 {
 }
 
 DirPwmMotor::DirPwmMotor(int pin_dir, int pin_pwm, bool reversed)
+    : MotorDriver()
 {
     begin(pin_dir, pin_pwm, reversed);
 }
@@ -106,6 +107,7 @@ void DirPwmMotor::write(int dir, int pwm, bool brake)
 // -------------------------------------------------------------------------------------
 
 FwdBwdPwmMotor::FwdBwdPwmMotor()
+    : MotorDriver()
 {
 }
 
@@ -114,6 +116,7 @@ FwdBwdPwmMotor::FwdBwdPwmMotor(
     int pin_dir_bwd,
     int pin_pwm,
     bool reversed)
+    : MotorDriver()
 {
     begin(pin_dir_fwd, pin_dir_bwd, pin_pwm, reversed);
 }
@@ -145,6 +148,7 @@ void FwdBwdPwmMotor::write(int dir, int pwm, bool brake)
 // -------------------------------------------------------------------------------------
 
 HBridgeHighLowMotor::HBridgeHighLowMotor()
+    : MotorDriver()
 {
 }
 
@@ -155,6 +159,7 @@ HBridgeHighLowMotor::HBridgeHighLowMotor(
     int pin_b_low,
     int limit,
     bool reversed)
+    : MotorDriver()
 {
     begin(pin_a_high, pin_a_low, pin_b_high, pin_b_low, limit, reversed);
 }
@@ -210,6 +215,7 @@ void HBridgeHighLowMotor::write(int dir, int pwm, bool brake)
 // -------------------------------------------------------------------------------------
 
 HBridgeSelectPwmMotor::HBridgeSelectPwmMotor()
+    : MotorDriver()
 {
 }
 
@@ -220,6 +226,7 @@ HBridgeSelectPwmMotor::HBridgeSelectPwmMotor(
     int pin_b_pwm,
     int limit,
     bool reversed)
+    : MotorDriver()
 {
     begin(pin_a_sel, pin_a_pwm, pin_b_sel, pin_b_pwm, limit, reversed);
 }
@@ -280,6 +287,7 @@ HBridgeSoftDeadtimeMotor::HBridgeSoftDeadtimeMotor(
     int pin_m1_conn_vcc,
     int pin_m1_disc_gnd,
     bool reversed)
+    : MotorDriver()
 {
     pin_m0_conn_vcc_ = pin_m0_conn_vcc;
     pin_m0_disc_gnd_ = pin_m0_disc_gnd;
