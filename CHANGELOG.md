@@ -1,6 +1,6 @@
 # Changelog
 
-## WIP
+## 4.0.0 (2022-09-07)
 
 - Removed `begin` methods, all parameters are now supplied into the constructor.
 - Ensured calling the base class' constructor in derived classes.
