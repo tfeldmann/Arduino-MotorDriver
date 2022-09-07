@@ -1,5 +1,11 @@
 # Changelog
 
+## WIP
+
+- Removed `begin` methods, all parameters are now supplied into the constructor.
+- Ensured calling the base class' constructor in derived classes.
+- Added tests.
+
 ## 3.1.0 (2022-03-23)
 
 - Add `reversed` parameter.

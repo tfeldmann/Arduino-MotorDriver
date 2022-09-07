@@ -27,9 +27,7 @@ private:
  */
 class PwmMotor : public MotorDriver {
 public:
-    PwmMotor();
     PwmMotor(int pin_pwm, bool reversed = false);
-    void begin(int pin_pwm, bool reversed = false);
     void write(int dir, int pwm, bool brake) override;
 
 private:
@@ -41,9 +39,7 @@ private:
  */
 class DirPwmMotor : public MotorDriver {
 public:
-    DirPwmMotor();
     DirPwmMotor(int pin_dir, int pin_pwm, bool reversed = false);
-    void begin(int pin_dir, int pin_pwm, bool reversed = false);
     void write(int dir, int pwm, bool brake) override;
 
 private:
@@ -56,9 +52,7 @@ private:
  */
 class FwdBwdPwmMotor : public MotorDriver {
 public:
-    FwdBwdPwmMotor();
     FwdBwdPwmMotor(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm, bool reversed = false);
-    void begin(int pin_dir_fwd, int pin_dir_bwd, int pin_pwm, bool reversed = false);
     void write(int dir, int pwm, bool brake) override;
 
 private:
@@ -72,20 +66,12 @@ private:
  */
 class HBridgeHighLowMotor : public MotorDriver {
 public:
-    HBridgeHighLowMotor();
     HBridgeHighLowMotor(
         int pin_a_high,
         int pin_a_low,
         int pin_b_high,
         int pin_b_low,
         int limit = 255,
-        bool reversed = false);
-    void begin(
-        int pin_a_high,
-        int pin_a_low,
-        int pin_b_high,
-        int pin_b_low,
-        int limit,
         bool reversed = false);
     void write(int dir, int pwm, bool brake) override;
 
@@ -103,15 +89,7 @@ private:
  */
 class HBridgeSelectPwmMotor : public MotorDriver {
 public:
-    HBridgeSelectPwmMotor();
     HBridgeSelectPwmMotor(
-        int pin_a_sel,
-        int pin_a_pwm,
-        int pin_b_sel,
-        int pin_b_pwm,
-        int limit = 255,
-        bool reversed = false);
-    void begin(
         int pin_a_sel,
         int pin_a_pwm,
         int pin_b_sel,

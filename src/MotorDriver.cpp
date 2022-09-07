@@ -50,21 +50,11 @@ void MotorDriver::stop(bool brake)
 // PwmMotor
 // -------------------------------------------------------------------------------------
 
-PwmMotor::PwmMotor()
-    : MotorDriver()
-{
-}
-
 PwmMotor::PwmMotor(int pin_pwm, bool reversed)
-{
-    begin(pin_pwm, reversed);
-}
-
-void PwmMotor::begin(int pin_pwm, bool reversed)
+    : MotorDriver(reversed)
 {
     pin_pwm_ = pin_pwm;
     pinMode(pin_pwm_, OUTPUT);
-    setReversed(reversed);
     stop();
 }
 
@@ -76,24 +66,13 @@ void PwmMotor::write(int dir, int pwm, bool brake)
 // DirPwmMotor
 // -------------------------------------------------------------------------------------
 
-DirPwmMotor::DirPwmMotor()
-    : MotorDriver()
-{
-}
-
 DirPwmMotor::DirPwmMotor(int pin_dir, int pin_pwm, bool reversed)
-    : MotorDriver()
-{
-    begin(pin_dir, pin_pwm, reversed);
-}
-
-void DirPwmMotor::begin(int pin_dir, int pin_pwm, bool reversed)
+    : MotorDriver(reversed)
 {
     pin_dir_ = pin_dir;
     pin_pwm_ = pin_pwm;
     pinMode(pin_dir_, OUTPUT);
     pinMode(pin_pwm_, OUTPUT);
-    setReversed(reversed);
     stop();
 }
 
@@ -106,26 +85,12 @@ void DirPwmMotor::write(int dir, int pwm, bool brake)
 // FwdBwdPwmMotor
 // -------------------------------------------------------------------------------------
 
-FwdBwdPwmMotor::FwdBwdPwmMotor()
-    : MotorDriver()
-{
-}
-
 FwdBwdPwmMotor::FwdBwdPwmMotor(
     int pin_dir_fwd,
     int pin_dir_bwd,
     int pin_pwm,
     bool reversed)
-    : MotorDriver()
-{
-    begin(pin_dir_fwd, pin_dir_bwd, pin_pwm, reversed);
-}
-
-void FwdBwdPwmMotor::begin(
-    int pin_dir_fwd,
-    int pin_dir_bwd,
-    int pin_pwm,
-    bool reversed)
+    : MotorDriver(reversed)
 {
     pin_dir_fwd_ = pin_dir_fwd;
     pin_dir_bwd_ = pin_dir_bwd;
@@ -133,7 +98,6 @@ void FwdBwdPwmMotor::begin(
     pinMode(pin_dir_fwd_, OUTPUT);
     pinMode(pin_dir_bwd_, OUTPUT);
     pinMode(pin_pwm_, OUTPUT);
-    setReversed(reversed);
     stop();
 }
 
@@ -147,11 +111,6 @@ void FwdBwdPwmMotor::write(int dir, int pwm, bool brake)
 // HBridgeHighLowMotor
 // -------------------------------------------------------------------------------------
 
-HBridgeHighLowMotor::HBridgeHighLowMotor()
-    : MotorDriver()
-{
-}
-
 HBridgeHighLowMotor::HBridgeHighLowMotor(
     int pin_a_high,
     int pin_a_low,
@@ -159,31 +118,19 @@ HBridgeHighLowMotor::HBridgeHighLowMotor(
     int pin_b_low,
     int limit,
     bool reversed)
-    : MotorDriver()
-{
-    begin(pin_a_high, pin_a_low, pin_b_high, pin_b_low, limit, reversed);
-}
-
-void HBridgeHighLowMotor::begin(
-    int pin_a_high,
-    int pin_a_low,
-    int pin_b_high,
-    int pin_b_low,
-    int limit,
-    bool reversed)
+    : MotorDriver(reversed)
 {
     pin_a_high_ = pin_a_high;
     pin_b_high_ = pin_b_high;
     pin_a_low_ = pin_a_low;
     pin_b_low_ = pin_b_low;
+    limit_ = limit;
+
     pinMode(pin_a_high_, OUTPUT);
     pinMode(pin_b_high_, OUTPUT);
     pinMode(pin_a_low_, OUTPUT);
     pinMode(pin_b_low_, OUTPUT);
-    setReversed(reversed);
     stop();
-
-    limit_ = limit;
 }
 
 void HBridgeHighLowMotor::write(int dir, int pwm, bool brake)
@@ -214,11 +161,6 @@ void HBridgeHighLowMotor::write(int dir, int pwm, bool brake)
 // HBridgeSelectPwmMotor
 // -------------------------------------------------------------------------------------
 
-HBridgeSelectPwmMotor::HBridgeSelectPwmMotor()
-    : MotorDriver()
-{
-}
-
 HBridgeSelectPwmMotor::HBridgeSelectPwmMotor(
     int pin_a_sel,
     int pin_a_pwm,
@@ -226,18 +168,7 @@ HBridgeSelectPwmMotor::HBridgeSelectPwmMotor(
     int pin_b_pwm,
     int limit,
     bool reversed)
-    : MotorDriver()
-{
-    begin(pin_a_sel, pin_a_pwm, pin_b_sel, pin_b_pwm, limit, reversed);
-}
-
-void HBridgeSelectPwmMotor::begin(
-    int pin_a_sel,
-    int pin_a_pwm,
-    int pin_b_sel,
-    int pin_b_pwm,
-    int limit,
-    bool reversed)
+    : MotorDriver(reversed)
 {
     pin_a_sel_ = pin_a_sel;
     pin_b_sel_ = pin_b_sel;
@@ -247,7 +178,6 @@ void HBridgeSelectPwmMotor::begin(
     pinMode(pin_a_pwm_, OUTPUT);
     pinMode(pin_b_sel_, OUTPUT);
     pinMode(pin_b_pwm_, OUTPUT);
-    setReversed(reversed);
     stop();
 
     limit_ = limit;
@@ -287,7 +217,7 @@ HBridgeSoftDeadtimeMotor::HBridgeSoftDeadtimeMotor(
     int pin_m1_conn_vcc,
     int pin_m1_disc_gnd,
     bool reversed)
-    : MotorDriver()
+    : MotorDriver(reversed)
 {
     pin_m0_conn_vcc_ = pin_m0_conn_vcc;
     pin_m0_disc_gnd_ = pin_m0_disc_gnd;
@@ -297,7 +227,6 @@ HBridgeSoftDeadtimeMotor::HBridgeSoftDeadtimeMotor(
     pinMode(pin_m0_disc_gnd, OUTPUT);
     pinMode(pin_m1_conn_vcc, OUTPUT);
     pinMode(pin_m1_disc_gnd, OUTPUT);
-    setReversed(reversed);
     stop();
     prev_dir_ = 0;
 }
