@@ -15,10 +15,14 @@ jobs:
           pip install -U platformio
 
       - name: Run the tests
-        run: platformio test
+        run: pio test
 
       - name: Build the examples
         run: ./build_examples.sh
 
       - name: Publish to platformio
-        run: PLATFORMIO_AUTH_TOKEN=${PLATFORMIO_TOKEN} platformio pkg publish --no-interactive
+        run: |
+          pio account login
+          pio pkg publish --no-interactive
+        env:
+          PLATFORMIO_AUTH_TOKEN: ${{secrets.PLATFORMIO_TOKEN}}
