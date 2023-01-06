@@ -63,7 +63,7 @@ void loop() {
 }
 ```
 
-Now to the best part. Imagine you change the motor control circuit and now have two
+Now imagine you change the motor control circuit and now have two
 separate direction pins FWD and BWD and a PWM pin for speed.
 With this library you only need to change the `DirPwmMotor` to `FwdBwdPwmMotor`:
 
