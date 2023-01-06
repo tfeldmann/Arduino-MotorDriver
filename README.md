@@ -3,9 +3,84 @@
 [![tests](https://github.com/tfeldmann/Arduino-MotorDriver/actions/workflows/tests.yaml/badge.svg)](https://github.com/tfeldmann/Arduino-MotorDriver/actions/workflows/tests.yaml)
 [![PlatformIO Registry](https://badges.registry.platformio.org/packages/tfeldmann/library/MotorDriver.svg)](https://registry.platformio.org/libraries/tfeldmann/MotorDriver)
 
-There are many different ways to drive a DC motor.
+This library let's you easily switch between different methods of controlling motors.
 
-This library gives you an unified interface to control the following setups:
+Assume you have the following code which controls a DC motor via an PWM and direction pin:
+
+```c
+const MOTOR_DIR_PIN = 5;
+const MOTOR_PWM_PIN = 6;
+
+void setup() {
+    pinMode(MOTOR_DIR_PIN, OUTPUT);
+    pinMode(MOTOR_PWM_PIN, OUTPUT);
+}
+
+void loop() {
+    // forward
+    digitalWrite(MOTOR_DIR_PIN, HIGH);
+    analogWrite(MOTOR_PWM_PIN, 255);
+    delay(1000);
+
+    // stop
+    analogWrite(MOTOR_PWM_PIN, 0);
+    delay(1000);
+
+    // backward
+    analogWrite(MOTOR_PWM_PIN, LOW);
+    analogWrite(MOTOR_PWM_PIN, 255);
+    delay(1000);
+
+    // stop
+    analogWrite(MOTOR_PWM_PIN, 0);
+    delay(1000);
+}
+```
+
+With this library this can be simplified to:
+
+```c
+#include <MotorDriver.h>
+
+DirPwmMotor motor(5, 6);
+
+void setup() {}
+
+void loop() {
+    motor.setSpeed(255);
+    delay(1000);
+
+    motor.stop();
+    delay(1000);
+
+    motor.setSpeed(-255);
+    delay(1000);
+
+    motor.stop();
+    delay(1000);
+}
+```
+
+Now to the best part. Imagine you change the motor control circuit and now have two
+separate direction pins FWD and BWD and a PWM pin for speed.
+With this library you only need to change the `DirPwmMotor` to `FwdBwdPwmMotor`:
+
+```diff
+-DirPwmMotor motor(5, 6);
++FwdBwdPwmMotor motor(4, 5, 6);
+```
+
+A `MotorDriver` has a super simple api:
+
+```c
+int speed();
+void setSpeed(int speed);
+void stop(bool brake = false);
+bool reversed();
+void setReversed(bool reversed);
+```
+
+The following implementations are available:
 
 | Classname                  | Pins                           | Comment                                                  |
 | -------------------------- | ------------------------------ | -------------------------------------------------------- |
@@ -17,4 +92,4 @@ This library gives you an unified interface to control the following setups:
 | `HBridgeSelectPwmMotor`    | `Sel1`, `Pwm1`, `Sel2`, `Pwm2` | A H-bridge controller with select / pwm controls         |
 | `HBridgeSoftDeadtimeMotor` | `H1`, `L1`, `H2`, `L2`         | A H-bridge motor controller with software deadtime       |
 
-This allows you to change the motor driver chip / circuitry with minimal changes to your code.
+PRs / issues welcome!
