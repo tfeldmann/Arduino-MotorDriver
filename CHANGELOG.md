@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.1 (2023-01-06)
+
+- Made the `sign` helper function static.
+- Initialize `MotorDriver.speed_` in constructor.
+
 ## 4.0.0 (2022-09-07)
 
 - Removed `begin` methods, all parameters are now supplied into the constructor.
