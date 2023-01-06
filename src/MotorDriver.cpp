@@ -1,6 +1,6 @@
 #include "MotorDriver.h"
 
-int8_t sign(int x)
+static inline int8_t sign(int x)
 {
     if (x == 0)
         return 0;
@@ -13,7 +13,8 @@ int8_t sign(int x)
 // -------------------------------------------------------------------------------------
 
 MotorDriver::MotorDriver(bool reversed)
-    : reversed_(reversed)
+    : speed_(0)
+    , reversed_(reversed)
 {
 }
 

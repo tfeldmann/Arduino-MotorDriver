@@ -8,6 +8,8 @@ This library let's you easily switch between different methods of controlling mo
 Assume you have the following code which controls a DC motor via an PWM and direction pin:
 
 ```c
+// code without MotorDriver library
+
 const int MOTOR_DIR_PIN = 5;
 const int MOTOR_PWM_PIN = 6;
 
@@ -75,9 +77,9 @@ A `MotorDriver` has a super simple api:
 ```c
 int speed();
 void setSpeed(int speed);
-void stop(bool brake = false);
 bool reversed();
 void setReversed(bool reversed);
+void stop(bool brake = false);
 ```
 
 The following implementations are available:

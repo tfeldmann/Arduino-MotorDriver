@@ -18,8 +18,8 @@ public:
     virtual void write(int dir, int pwm, bool brake = false) = 0;
 
 private:
-    int speed_ = 0;
-    bool reversed_ = false;
+    int speed_;
+    bool reversed_;
 };
 
 /**
