@@ -8,8 +8,8 @@ This library let's you easily switch between different methods of controlling mo
 Assume you have the following code which controls a DC motor via an PWM and direction pin:
 
 ```c
-const MOTOR_DIR_PIN = 5;
-const MOTOR_PWM_PIN = 6;
+const int MOTOR_DIR_PIN = 5;
+const int MOTOR_PWM_PIN = 6;
 
 void setup() {
     pinMode(MOTOR_DIR_PIN, OUTPUT);
@@ -27,7 +27,7 @@ void loop() {
     delay(1000);
 
     // backward
-    analogWrite(MOTOR_PWM_PIN, LOW);
+    digitalWrite(MOTOR_DIR_PIN, LOW);
     analogWrite(MOTOR_PWM_PIN, 255);
     delay(1000);
 
